@@ -10,20 +10,19 @@ class FineUploaderController extends AbstractChunkedController
 {
     public function upload()
     {
-        $request = $this->getRequest();
+        $request    = $this->getRequest();
         $translator = $this->container->get('translator');
 
-        $response = new FineUploaderResponse();
+        $response   = new FineUploaderResponse();
         $totalParts = $request->get('qqtotalparts', 1);
-        $files = $this->getFiles($request->files);
-        $chunked = $totalParts > 1;
+        $files      = $this->getFiles($request->files);
+        $chunked    = $totalParts > 1;
 
         foreach ($files as $file) {
             try {
                 $chunked ?
                     $this->handleChunkedUpload($file, $response, $request) :
-                    $this->handleUpload($file, $response, $request)
-                ;
+                    $this->handleUpload($file, $response, $request);
             } catch (UploadException $e) {
                 $response->setSuccess(false);
                 $response->setError($translator->trans($e->getMessage(), [], 'OneupUploaderBundle'));
@@ -40,11 +39,11 @@ class FineUploaderController extends AbstractChunkedController
 
     protected function parseChunkedRequest(Request $request)
     {
-        $index = $request->get('qqpartindex');
-        $total = $request->get('qqtotalparts');
-        $uuid = $request->get('qquuid');
-        $orig = $request->get('qqfilename');
-        $last = ($total - 1) === $index;
+        $index = (int) $request->get('qqpartindex');
+        $total = (int) $request->get('qqtotalparts');
+        $uuid  = $request->get('qquuid');
+        $orig  = $request->get('qqfilename');
+        $last  = ($total - 1) === $index;
 
         return [$last, $uuid, $index, $orig];
     }
